@@ -1307,8 +1307,8 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
     classNames: classNames
   });
   return React__default.createElement("strong", _extends({
-    onClick: function() {
-      onClick && onClick(id, display);
+    onClick: function(event) {
+      onClick && onClick(event, id, display);
     }
   }, styles), display);
 };

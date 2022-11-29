@@ -2173,8 +2173,8 @@ var Mention = function Mention(_ref) {
     classNames: classNames
   });
 
-  var handleOnClick = function handleOnClick() {
-    if (onClick) onClick(id, display);
+  var handleOnClick = function handleOnClick(event) {
+    if (onClick) onClick(event, id, display);
   };
 
   return /*#__PURE__*/React__default.createElement("strong", _extends({
