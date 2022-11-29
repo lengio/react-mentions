@@ -1301,13 +1301,15 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
 }), MentionsInput$1 = styled$3(MentionsInput), defaultStyle = {
   fontWeight: "inherit"
 }, Mention = function(_ref) {
-  var display = _ref.display, style = _ref.style, className = _ref.className, classNames = _ref.classNames, onClick = _ref.onClick, styles = useStyles__default(defaultStyle, {
+  var display = _ref.display, style = _ref.style, className = _ref.className, classNames = _ref.classNames, id = _ref.id, onClick = _ref.onClick, styles = useStyles__default(defaultStyle, {
     style: style,
     className: className,
     classNames: classNames
   });
   return React__default.createElement("strong", _extends({
-    onClick: onClick
+    onClick: function() {
+      onClick && onClick(id, display);
+    }
   }, styles), display);
 };
 

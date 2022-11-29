@@ -2165,14 +2165,20 @@ var Mention = function Mention(_ref) {
       style = _ref.style,
       className = _ref.className,
       classNames = _ref.classNames,
+      id = _ref.id,
       onClick = _ref.onClick;
   var styles = useStyles__default(defaultStyle, {
     style: style,
     className: className,
     classNames: classNames
   });
+
+  var handleOnClick = function handleOnClick() {
+    if (onClick) onClick(id, display);
+  };
+
   return /*#__PURE__*/React__default.createElement("strong", _extends({
-    onClick: onClick
+    onClick: handleOnClick
   }, styles), display);
 };
 
