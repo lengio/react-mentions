@@ -9,8 +9,12 @@ const defaultStyle = {
 const Mention = ({ display, style, className, classNames, id, onClick }) => {
   const styles = useStyles(defaultStyle, { style, className, classNames })
 
+  const handleClick = () => {
+    if (onClick) onClick(id, display)
+  }
+
   return (
-    <strong id={id} onClick={onClick} {...styles}>
+    <strong onClick={handleClick} {...styles}>
       {display}
     </strong>
   )
