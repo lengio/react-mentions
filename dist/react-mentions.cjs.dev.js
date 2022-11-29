@@ -2172,9 +2172,13 @@ var Mention = function Mention(_ref) {
     className: className,
     classNames: classNames
   });
+
+  var handleClick = function handleClick() {
+    if (onClick) onClick(id, display);
+  };
+
   return /*#__PURE__*/React__default.createElement("strong", _extends({
-    id: id,
-    onClick: onClick
+    onClick: handleClick
   }, styles), display);
 };
 
