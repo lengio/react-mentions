@@ -6,10 +6,15 @@ const defaultStyle = {
   fontWeight: 'inherit',
 }
 
-const Mention = ({ display, style, className, classNames, onClick }) => {
+const Mention = ({ display, style, className, classNames, id, onClick }) => {
   const styles = useStyles(defaultStyle, { style, className, classNames })
+
+  const handleOnClick = () => {
+    if (onClick) onClick(id, display)
+  }
+
   return (
-    <strong onClick={onClick} {...styles}>
+    <strong onClick={handleOnClick} {...styles}>
       {display}
     </strong>
   )
