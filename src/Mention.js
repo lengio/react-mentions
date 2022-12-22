@@ -8,14 +8,19 @@ const defaultStyle = {
 
 const Mention = ({ display, style, className, classNames, id, onClick }) => {
   const styles = useStyles(defaultStyle, { style, className, classNames })
+  const ref = React.useRef(null)
 
   const handleClick = (event) => {
     event.stopPropagation()
     if (onClick) onClick(id, display)
   }
 
+  React.useEffect(() => {
+    ref.current.addEventListener('click', handleClick)
+  }, [])
+
   return (
-    <strong onClick={handleClick} {...styles}>
+    <strong ref={ref} onClick={handleClick} {...styles}>
       {display}
     </strong>
   )

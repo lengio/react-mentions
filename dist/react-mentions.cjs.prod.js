@@ -1305,11 +1305,14 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
     style: style,
     className: className,
     classNames: classNames
-  });
-  return React__default.createElement("strong", _extends({
-    onClick: function(event) {
-      event.stopPropagation(), onClick && onClick(id, display);
-    }
+  }), ref = React__default.useRef(null), handleClick = function(event) {
+    event.stopPropagation(), onClick && onClick(id, display);
+  };
+  return React__default.useEffect(function() {
+    ref.current.addEventListener("click", handleClick);
+  }, []), React__default.createElement("strong", _extends({
+    ref: ref,
+    onClick: handleClick
   }, styles), display);
 };
 
