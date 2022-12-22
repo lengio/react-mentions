@@ -2165,7 +2165,8 @@ var Mention = function Mention(_ref) {
     classNames: classNames
   });
 
-  var handleClick = function handleClick() {
+  var handleClick = function handleClick(event) {
+    event.stopPropagation();
     if (onClick) onClick(id, display);
   };
 

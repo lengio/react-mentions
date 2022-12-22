@@ -9,7 +9,8 @@ const defaultStyle = {
 const Mention = ({ display, style, className, classNames, id, onClick }) => {
   const styles = useStyles(defaultStyle, { style, className, classNames })
 
-  const handleClick = () => {
+  const handleClick = (event) => {
+    event.stopPropagation()
     if (onClick) onClick(id, display)
   }
 
