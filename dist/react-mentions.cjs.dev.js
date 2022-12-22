@@ -2172,13 +2172,18 @@ var Mention = function Mention(_ref) {
     className: className,
     classNames: classNames
   });
+  var ref = React__default.useRef(null);
 
   var handleClick = function handleClick(event) {
     event.stopPropagation();
     if (onClick) onClick(id, display);
   };
 
+  React__default.useEffect(function () {
+    ref.current.addEventListener('click', handleClick);
+  }, []);
   return /*#__PURE__*/React__default.createElement("strong", _extends({
+    ref: ref,
     onClick: handleClick
   }, styles), display);
 };
