@@ -437,119 +437,65 @@ function createDefaultStyle(defaultStyle, getModifiers) {
   };
 }
 
-function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct();
-  return function() {
-    var result, Super = _getPrototypeOf(Derived);
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else result = Super.apply(this, arguments);
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
-function _isNativeReflectConstruct() {
-  if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
-  if (Reflect.construct.sham) return !1;
-  if ("function" == typeof Proxy) return !0;
-  try {
-    return Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {})), 
-    !0;
-  } catch (e) {
-    return !1;
-  }
-}
-
 var _generateComponentKey = function(usedKeys, id) {
   return usedKeys.hasOwnProperty(id) ? usedKeys[id]++ : usedKeys[id] = 0, id + "_" + usedKeys[id];
-}, Highlighter = function(_Component) {
-  _inherits(Highlighter, _Component);
-  var _super = _createSuper(Highlighter);
-  function Highlighter() {
-    var _this;
-    return _classCallCheck(this, Highlighter), _this = _super.apply(this, arguments), 
-    _defineProperty(_assertThisInitialized(_this), "setCaretElement", function(el) {
-      _this.caretElement = el;
-    }), _this.state = {
-      left: void 0,
-      top: void 0
-    }, _this;
-  }
-  return _createClass(Highlighter, [ {
-    key: "componentDidMount",
-    value: function() {
-      this.notifyCaretPosition();
-    }
-  }, {
-    key: "componentDidUpdate",
-    value: function() {
-      this.notifyCaretPosition();
-    }
-  }, {
-    key: "notifyCaretPosition",
-    value: function() {
-      if (this.caretElement) {
-        var _this$caretElement = this.caretElement, offsetLeft = _this$caretElement.offsetLeft, offsetTop = _this$caretElement.offsetTop;
-        if (this.state.left !== offsetLeft || this.state.top !== offsetTop) {
-          var newPosition = {
-            left: offsetLeft,
-            top: offsetTop
-          };
-          this.setState(newPosition), this.props.onCaretPositionChange(newPosition);
-        }
+};
+
+function Highlighter(_ref) {
+  var selectionStart = _ref.selectionStart, selectionEnd = _ref.selectionEnd, _ref$value = _ref.value, value = void 0 === _ref$value ? "" : _ref$value, onCaretPositionChange = _ref.onCaretPositionChange, containerRef = _ref.containerRef, children = _ref.children, style = (_ref.singleLine, 
+  _ref.style), _useState = React.useState({
+    left: void 0,
+    top: void 0
+  }), _useState2 = _slicedToArray(_useState, 2), position = _useState2[0], setPosition = _useState2[1], _useState3 = React.useState(), _useState4 = _slicedToArray(_useState3, 2), caretElement = _useState4[0], setCaretElement = _useState4[1];
+  React.useEffect(function() {
+    notifyCaretPosition();
+  }, [ caretElement ]);
+  var caretPositionInMarkup, notifyCaretPosition = function() {
+    if (caretElement) {
+      var offsetLeft = caretElement.offsetLeft, offsetTop = caretElement.offsetTop;
+      if (position.left !== offsetLeft || position.top !== offsetTop) {
+        var newPosition = {
+          left: offsetLeft,
+          top: offsetTop
+        };
+        setPosition(newPosition), onCaretPositionChange(newPosition);
       }
     }
-  }, {
-    key: "render",
-    value: function() {
-      var caretPositionInMarkup, _this2 = this, _this$props = this.props, selectionStart = _this$props.selectionStart, selectionEnd = _this$props.selectionEnd, value = _this$props.value, style = _this$props.style, children = _this$props.children, containerRef = _this$props.containerRef, config = readConfigFromChildren(children);
-      selectionStart === selectionEnd && (caretPositionInMarkup = mapPlainTextIndex(value, config, selectionStart, "START"));
-      var resultComponents = [], componentKeys = {}, components = resultComponents, substringComponentKey = 0;
-      return iterateMentionsMarkup(value, config, function(markup, index, indexInPlainText, id, display, mentionChildIndex, lastMentionEndIndex) {
-        var key = _generateComponentKey(componentKeys, id);
-        components.push(_this2.getMentionComponentForMatch(id, display, mentionChildIndex, key));
-      }, function(substr, index, indexInPlainText) {
-        if (isNumber(caretPositionInMarkup) && caretPositionInMarkup >= index && caretPositionInMarkup <= index + substr.length) {
-          var splitIndex = caretPositionInMarkup - index;
-          components.push(_this2.renderSubstring(substr.substring(0, splitIndex), substringComponentKey)), 
-          components = [ _this2.renderSubstring(substr.substring(splitIndex), substringComponentKey) ];
-        } else components.push(_this2.renderSubstring(substr, substringComponentKey));
-        substringComponentKey++;
-      }), components.push(" "), components !== resultComponents && resultComponents.push(this.renderHighlighterCaret(components)), 
-      React__default.createElement("div", _extends({}, style, {
-        ref: containerRef
-      }), resultComponents);
-    }
-  }, {
-    key: "renderSubstring",
-    value: function(string, key) {
-      return React__default.createElement("span", _extends({}, this.props.style("substring"), {
-        key: key
-      }), string);
-    }
-  }, {
-    key: "getMentionComponentForMatch",
-    value: function(id, display, mentionChildIndex, key) {
-      var props = {
-        id: id,
-        display: display,
-        key: key
-      }, child = React.Children.toArray(this.props.children)[mentionChildIndex];
-      return React__default.cloneElement(child, props);
-    }
-  }, {
-    key: "renderHighlighterCaret",
-    value: function(children) {
-      return React__default.createElement("span", _extends({}, this.props.style("caret"), {
-        ref: this.setCaretElement,
-        key: "caret"
-      }), children);
-    }
-  } ]), Highlighter;
-}(React.Component);
+  }, config = readConfigFromChildren(children);
+  selectionEnd === selectionStart && (caretPositionInMarkup = mapPlainTextIndex(value, config, selectionStart, "START"));
+  var resultComponents = [], componentKeys = {}, components = resultComponents, substringComponentKey = 0, renderSubstring = function(string, key) {
+    return React__default.createElement("span", _extends({}, style("substring"), {
+      key: key
+    }), string);
+  }, getMentionComponentForMatch = function(id, display, mentionChildIndex, key) {
+    var props = {
+      id: id,
+      display: display,
+      key: key
+    }, child = React.Children.toArray(children)[mentionChildIndex];
+    return React__default.cloneElement(child, props);
+  };
+  return iterateMentionsMarkup(value, config, function(markup, index, indexInPlainText, id, display, mentionChildIndex, lastMentionEndIndex) {
+    var key = _generateComponentKey(componentKeys, id);
+    components.push(getMentionComponentForMatch(id, display, mentionChildIndex, key));
+  }, function(substr, index, indexInPlainText) {
+    if (isNumber(caretPositionInMarkup) && caretPositionInMarkup >= index && caretPositionInMarkup <= index + substr.length) {
+      var splitIndex = caretPositionInMarkup - index;
+      components.push(renderSubstring(substr.substring(0, splitIndex), substringComponentKey)), 
+      components = [ renderSubstring(substr.substring(splitIndex), substringComponentKey) ];
+    } else components.push(renderSubstring(substr, substringComponentKey));
+    substringComponentKey++;
+  }), components.push(" "), components !== resultComponents && resultComponents.push(function(children) {
+    return React__default.createElement("span", _extends({}, style("caret"), {
+      ref: setCaretElement,
+      key: "caret"
+    }), children);
+  }(components)), React__default.createElement("div", _extends({}, style, {
+    ref: containerRef
+  }), resultComponents);
+}
 
-_defineProperty(Highlighter, "propTypes", {
+Highlighter.propTypes = {
   selectionStart: PropTypes.number,
   selectionEnd: PropTypes.number,
   value: PropTypes.string.isRequired,
@@ -558,9 +504,7 @@ _defineProperty(Highlighter, "propTypes", {
     current: "undefined" == typeof Element ? PropTypes.any : PropTypes.instanceOf(Element)
   }) ]),
   children: PropTypes.oneOfType([ PropTypes.element, PropTypes.arrayOf(PropTypes.element) ]).isRequired
-}), _defineProperty(Highlighter, "defaultProps", {
-  value: ""
-});
+};
 
 var styled = createDefaultStyle({
   position: "relative",
@@ -638,116 +582,68 @@ function LoadingIndicator(_ref) {
 
 var defaultstyle = {};
 
-function _createSuper$1(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct$1();
-  return function() {
-    var result, Super = _getPrototypeOf(Derived);
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else result = Super.apply(this, arguments);
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
-function _isNativeReflectConstruct$1() {
-  if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
-  if (Reflect.construct.sham) return !1;
-  if ("function" == typeof Proxy) return !0;
-  try {
-    return Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {})), 
-    !0;
-  } catch (e) {
-    return !1;
-  }
-}
-
-var SuggestionsOverlay = function(_Component) {
-  _inherits(SuggestionsOverlay, _Component);
-  var _super = _createSuper$1(SuggestionsOverlay);
-  function SuggestionsOverlay() {
-    var _this;
-    _classCallCheck(this, SuggestionsOverlay);
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) args[_key] = arguments[_key];
-    return _this = _super.call.apply(_super, [ this ].concat(args)), _defineProperty(_assertThisInitialized(_this), "handleMouseEnter", function(index, ev) {
-      _this.props.onMouseEnter && _this.props.onMouseEnter(index);
-    }), _defineProperty(_assertThisInitialized(_this), "select", function(suggestion, queryInfo) {
-      _this.props.onSelect(suggestion, queryInfo);
-    }), _defineProperty(_assertThisInitialized(_this), "setUlElement", function(el) {
-      _this.ulElement = el;
-    }), _this;
-  }
-  return _createClass(SuggestionsOverlay, [ {
-    key: "componentDidUpdate",
-    value: function() {
-      if (this.ulElement && !(this.ulElement.offsetHeight >= this.ulElement.scrollHeight) && this.props.scrollFocusedIntoView) {
-        var scrollTop = this.ulElement.scrollTop, _this$ulElement$child = this.ulElement.children[this.props.focusIndex].getBoundingClientRect(), top = _this$ulElement$child.top, bottom = _this$ulElement$child.bottom, topContainer = this.ulElement.getBoundingClientRect().top;
-        bottom = bottom - topContainer + scrollTop, (top = top - topContainer + scrollTop) < scrollTop ? this.ulElement.scrollTop = top : bottom > this.ulElement.offsetHeight && (this.ulElement.scrollTop = bottom - this.ulElement.offsetHeight);
+function SuggestionsOverlay(_ref) {
+  var id = _ref.id, _ref$suggestions = _ref.suggestions, suggestions = void 0 === _ref$suggestions ? {} : _ref$suggestions, a11ySuggestionsListLabel = _ref.a11ySuggestionsListLabel, focusIndex = _ref.focusIndex, position = _ref.position, left = _ref.left, right = _ref.right, top = _ref.top, scrollFocusedIntoView = _ref.scrollFocusedIntoView, isLoading = _ref.isLoading, isOpened = _ref.isOpened, _ref$onSelect = _ref.onSelect, onSelect = void 0 === _ref$onSelect ? function() {
+    return null;
+  } : _ref$onSelect, ignoreAccents = _ref.ignoreAccents, containerRef = _ref.containerRef, children = _ref.children, style = _ref.style, customSuggestionsContainer = _ref.customSuggestionsContainer, onMouseDown = _ref.onMouseDown, onMouseEnter = _ref.onMouseEnter, _useState = React.useState(), _useState2 = _slicedToArray(_useState, 2), ulElement = _useState2[0], setUlElement = _useState2[1];
+  React.useEffect(function() {
+    if (ulElement && !(ulElement.offsetHeight >= ulElement.scrollHeight) && scrollFocusedIntoView) {
+      var scrollTop = ulElement.scrollTop, _ulElement$children$f = ulElement.children[focusIndex].getBoundingClientRect(), top = _ulElement$children$f.top, bottom = _ulElement$children$f.bottom, topContainer = ulElement.getBoundingClientRect().top;
+      bottom = bottom - topContainer + scrollTop, (top = top - topContainer + scrollTop) < scrollTop ? ulElement.scrollTop = top : bottom > ulElement.offsetHeight && (ulElement.scrollTop = bottom - ulElement.offsetHeight);
+    }
+  }, []);
+  var suggestionsToRender, renderSuggestion = function(result, queryInfo, index) {
+    var isFocused = index === focusIndex, childIndex = queryInfo.childIndex, query = queryInfo.query, renderSuggestion = React.Children.toArray(children)[childIndex].props.renderSuggestion;
+    return React__default.createElement(Suggestion$1, {
+      style: style("item"),
+      key: "".concat(childIndex, "-").concat(getID(result)),
+      id: getSuggestionHtmlId(id, index),
+      query: query,
+      index: index,
+      ignoreAccents: ignoreAccents,
+      renderSuggestion: renderSuggestion,
+      suggestion: result,
+      focused: isFocused,
+      onClick: function() {
+        return select(result, queryInfo);
+      },
+      onMouseEnter: function() {
+        return handleMouseEnter(index);
       }
-    }
-  }, {
-    key: "render",
-    value: function() {
-      var _this$props = this.props, id = _this$props.id, a11ySuggestionsListLabel = _this$props.a11ySuggestionsListLabel, isOpened = _this$props.isOpened, style = _this$props.style, onMouseDown = _this$props.onMouseDown, containerRef = _this$props.containerRef, position = _this$props.position, left = _this$props.left, right = _this$props.right, top = _this$props.top;
-      return isOpened ? React__default.createElement("div", _extends({}, useStyles.inline({
-        position: position || "absolute",
-        left: left,
-        right: right,
-        top: top
-      }, style), {
-        onMouseDown: onMouseDown,
-        ref: containerRef
-      }), React__default.createElement("ul", _extends({
-        ref: this.setUlElement,
-        id: id,
-        role: "listbox",
-        "aria-label": a11ySuggestionsListLabel
-      }, style("list")), this.renderSuggestions()), this.renderLoadingIndicator()) : null;
-    }
-  }, {
-    key: "renderSuggestions",
-    value: function() {
-      var _this2 = this, customSuggestionsContainer = this.props.customSuggestionsContainer, suggestions = Object.values(this.props.suggestions).reduce(function(accResults, _ref) {
-        var results = _ref.results, queryInfo = _ref.queryInfo;
-        return [].concat(_toConsumableArray(accResults), _toConsumableArray(results.map(function(result, index) {
-          return _this2.renderSuggestion(result, queryInfo, accResults.length + index);
-        })));
-      }, []);
-      return customSuggestionsContainer ? customSuggestionsContainer(suggestions) : suggestions;
-    }
-  }, {
-    key: "renderSuggestion",
-    value: function(result, queryInfo, index) {
-      var _this3 = this, isFocused = index === this.props.focusIndex, childIndex = queryInfo.childIndex, query = queryInfo.query, renderSuggestion = React.Children.toArray(this.props.children)[childIndex].props.renderSuggestion, ignoreAccents = this.props.ignoreAccents;
-      return React__default.createElement(Suggestion$1, {
-        style: this.props.style("item"),
-        key: "".concat(childIndex, "-").concat(getID(result)),
-        id: getSuggestionHtmlId(this.props.id, index),
-        query: query,
-        index: index,
-        ignoreAccents: ignoreAccents,
-        renderSuggestion: renderSuggestion,
-        suggestion: result,
-        focused: isFocused,
-        onClick: function() {
-          return _this3.select(result, queryInfo);
-        },
-        onMouseEnter: function() {
-          return _this3.handleMouseEnter(index);
-        }
-      });
-    }
-  }, {
-    key: "renderLoadingIndicator",
-    value: function() {
-      if (this.props.isLoading) return React__default.createElement(LoadingIndicator, {
-        style: this.props.style("loadingIndicator")
-      });
-    }
-  } ]), SuggestionsOverlay;
-}(React.Component);
+    });
+  }, handleMouseEnter = function(index, ev) {
+    onMouseEnter && onMouseEnter(index);
+  }, select = function(suggestion, queryInfo) {
+    onSelect(suggestion, queryInfo);
+  }, getID = function(suggestion) {
+    return "string" == typeof suggestion ? suggestion : suggestion.id;
+  };
+  return isOpened ? React__default.createElement("div", _extends({}, useStyles.inline({
+    position: position || "absolute",
+    left: left,
+    right: right,
+    top: top
+  }, style), {
+    onMouseDown: onMouseDown,
+    ref: containerRef
+  }), React__default.createElement("ul", _extends({
+    ref: setUlElement,
+    id: id,
+    role: "listbox",
+    "aria-label": a11ySuggestionsListLabel
+  }, style("list")), (suggestionsToRender = Object.values(suggestions).reduce(function(accResults, _ref2) {
+    var results = _ref2.results, queryInfo = _ref2.queryInfo;
+    return [].concat(_toConsumableArray(accResults), _toConsumableArray(results.map(function(result, index) {
+      return renderSuggestion(result, queryInfo, accResults.length + index);
+    })));
+  }, []), customSuggestionsContainer ? customSuggestionsContainer(suggestionsToRender) : suggestionsToRender)), function() {
+    if (isLoading) return React__default.createElement(LoadingIndicator, {
+      style: style("loadingIndicator")
+    });
+  }()) : null;
+}
 
-_defineProperty(SuggestionsOverlay, "propTypes", {
+SuggestionsOverlay.propTypes = {
   id: PropTypes.string.isRequired,
   suggestions: PropTypes.object.isRequired,
   a11ySuggestionsListLabel: PropTypes.string,
@@ -761,20 +657,13 @@ _defineProperty(SuggestionsOverlay, "propTypes", {
   isOpened: PropTypes.bool.isRequired,
   onSelect: PropTypes.func,
   ignoreAccents: PropTypes.bool,
+  customSuggestionsContainer: PropTypes.func,
   containerRef: PropTypes.oneOfType([ PropTypes.func, PropTypes.shape({
     current: "undefined" == typeof Element ? PropTypes.any : PropTypes.instanceOf(Element)
-  }) ]),
-  children: PropTypes.oneOfType([ PropTypes.element, PropTypes.arrayOf(PropTypes.element) ]).isRequired
-}), _defineProperty(SuggestionsOverlay, "defaultProps", {
-  suggestions: {},
-  onSelect: function() {
-    return null;
-  }
-});
+  }) ])
+};
 
-var getID = function(suggestion) {
-  return "string" == typeof suggestion ? suggestion : suggestion.id;
-}, styled$2 = createDefaultStyle({
+var styled$2 = createDefaultStyle({
   zIndex: 1,
   backgroundColor: "white",
   marginTop: 14,
@@ -809,8 +698,8 @@ function _objectSpread(target) {
   return target;
 }
 
-function _createSuper$2(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct$2();
+function _createSuper(Derived) {
+  var hasNativeReflectConstruct = _isNativeReflectConstruct();
   return function() {
     var result, Super = _getPrototypeOf(Derived);
     if (hasNativeReflectConstruct) {
@@ -821,7 +710,7 @@ function _createSuper$2(Derived) {
   };
 }
 
-function _isNativeReflectConstruct$2() {
+function _isNativeReflectConstruct() {
   if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
   if (Reflect.construct.sham) return !1;
   if ("function" == typeof Proxy) return !0;
@@ -872,7 +761,7 @@ var makeTriggerRegex = function(trigger) {
   children: PropTypes.oneOfType([ PropTypes.element, PropTypes.arrayOf(PropTypes.element) ]).isRequired
 }, MentionsInput = function(_React$Component) {
   _inherits(MentionsInput, _React$Component);
-  var _super = _createSuper$2(MentionsInput);
+  var _super = _createSuper(MentionsInput);
   function MentionsInput(_props) {
     var _this;
     return _classCallCheck(this, MentionsInput), _this = _super.call(this, _props), 
@@ -1306,7 +1195,7 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
     className: className,
     classNames: classNames
   }), ref = React__default.useRef(null), handleClick = function(event) {
-    event.stopPropagation(), onClick && onClick(id, display);
+    onClick && onClick(id, display);
   };
   return React__default.useEffect(function() {
     ref.current.addEventListener("click", handleClick);
