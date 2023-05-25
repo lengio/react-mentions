@@ -688,10 +688,6 @@ function createDefaultStyle(defaultStyle, getModifiers) {
   return enhance;
 }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
 var _generateComponentKey = function _generateComponentKey(usedKeys, id) {
   if (!usedKeys.hasOwnProperty(id)) {
     usedKeys[id] = 0;
@@ -702,158 +698,126 @@ var _generateComponentKey = function _generateComponentKey(usedKeys, id) {
   return id + '_' + usedKeys[id];
 };
 
-var Highlighter = /*#__PURE__*/function (_Component) {
-  _inherits(Highlighter, _Component);
+function Highlighter(_ref) {
+  var selectionStart = _ref.selectionStart,
+      selectionEnd = _ref.selectionEnd,
+      _ref$value = _ref.value,
+      value = _ref$value === void 0 ? '' : _ref$value,
+      onCaretPositionChange = _ref.onCaretPositionChange,
+      containerRef = _ref.containerRef,
+      children = _ref.children,
+      singleLine = _ref.singleLine,
+      style = _ref.style;
 
-  var _super = _createSuper(Highlighter);
+  var _useState = React.useState({
+    left: undefined,
+    top: undefined
+  }),
+      _useState2 = _slicedToArray(_useState, 2),
+      position = _useState2[0],
+      setPosition = _useState2[1];
 
-  function Highlighter() {
-    var _this;
+  var _useState3 = React.useState(),
+      _useState4 = _slicedToArray(_useState3, 2),
+      caretElement = _useState4[0],
+      setCaretElement = _useState4[1];
 
-    _classCallCheck(this, Highlighter);
+  React.useEffect(function () {
+    notifyCaretPosition();
+  }, [caretElement]);
 
-    _this = _super.apply(this, arguments);
+  var notifyCaretPosition = function notifyCaretPosition() {
+    if (!caretElement) {
+      return;
+    }
 
-    _defineProperty(_assertThisInitialized(_this), "setCaretElement", function (el) {
-      _this.caretElement = el;
-    });
+    var offsetLeft = caretElement.offsetLeft,
+        offsetTop = caretElement.offsetTop;
 
-    _this.state = {
-      left: undefined,
-      top: undefined
+    if (position.left === offsetLeft && position.top === offsetTop) {
+      return;
+    }
+
+    var newPosition = {
+      left: offsetLeft,
+      top: offsetTop
     };
-    return _this;
+    setPosition(newPosition);
+    onCaretPositionChange(newPosition);
+  };
+
+  var config = readConfigFromChildren(children);
+  var caretPositionInMarkup;
+
+  if (selectionEnd === selectionStart) {
+    caretPositionInMarkup = mapPlainTextIndex(value, config, selectionStart, 'START');
   }
 
-  _createClass(Highlighter, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.notifyCaretPosition();
+  var resultComponents = [];
+  var componentKeys = {};
+  var components = resultComponents;
+  var substringComponentKey = 0;
+
+  var textIteratee = function textIteratee(substr, index, indexInPlainText) {
+    // check whether the caret element has to be inserted inside the current plain substring
+    if (isNumber(caretPositionInMarkup) && caretPositionInMarkup >= index && caretPositionInMarkup <= index + substr.length) {
+      // if yes, split substr at the caret position and insert the caret component
+      var splitIndex = caretPositionInMarkup - index;
+      components.push(renderSubstring(substr.substring(0, splitIndex), substringComponentKey)); // add all following substrings and mention components as children of the caret component
+
+      components = [renderSubstring(substr.substring(splitIndex), substringComponentKey)];
+    } else {
+      components.push(renderSubstring(substr, substringComponentKey));
     }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      this.notifyCaretPosition();
-    }
-  }, {
-    key: "notifyCaretPosition",
-    value: function notifyCaretPosition() {
-      if (!this.caretElement) {
-        return;
-      }
 
-      var _this$caretElement = this.caretElement,
-          offsetLeft = _this$caretElement.offsetLeft,
-          offsetTop = _this$caretElement.offsetTop;
+    substringComponentKey++;
+  };
 
-      if (this.state.left === offsetLeft && this.state.top === offsetTop) {
-        return;
-      }
+  var mentionIteratee = function mentionIteratee(markup, index, indexInPlainText, id, display, mentionChildIndex, lastMentionEndIndex) {
+    var key = _generateComponentKey(componentKeys, id);
 
-      var newPosition = {
-        left: offsetLeft,
-        top: offsetTop
-      };
-      this.setState(newPosition);
-      this.props.onCaretPositionChange(newPosition);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this2 = this;
+    components.push(getMentionComponentForMatch(id, display, mentionChildIndex, key));
+  };
 
-      var _this$props = this.props,
-          selectionStart = _this$props.selectionStart,
-          selectionEnd = _this$props.selectionEnd,
-          value = _this$props.value,
-          style = _this$props.style,
-          children = _this$props.children,
-          containerRef = _this$props.containerRef;
-      var config = readConfigFromChildren(children); // If there's a caret (i.e. no range selection), map the caret position into the marked up value
+  var renderSubstring = function renderSubstring(string, key) {
+    // set substring span to hidden, so that Emojis are not shown double in Mobile Safari
+    return /*#__PURE__*/React__default.createElement("span", _extends({}, style('substring'), {
+      key: key
+    }), string);
+  };
 
-      var caretPositionInMarkup;
+  var getMentionComponentForMatch = function getMentionComponentForMatch(id, display, mentionChildIndex, key) {
+    var props = {
+      id: id,
+      display: display,
+      key: key
+    };
+    var child = React.Children.toArray(children)[mentionChildIndex];
+    return /*#__PURE__*/React__default.cloneElement(child, props);
+  };
 
-      if (selectionStart === selectionEnd) {
-        caretPositionInMarkup = mapPlainTextIndex(value, config, selectionStart, 'START');
-      }
+  var renderHighlighterCaret = function renderHighlighterCaret(children) {
+    return /*#__PURE__*/React__default.createElement("span", _extends({}, style('caret'), {
+      ref: setCaretElement,
+      key: "caret"
+    }), children);
+  };
 
-      var resultComponents = [];
-      var componentKeys = {}; // start by appending directly to the resultComponents
+  iterateMentionsMarkup(value, config, mentionIteratee, textIteratee); // append a span containing a space, to ensure the last text line has the correct height
 
-      var components = resultComponents;
-      var substringComponentKey = 0;
+  components.push(' ');
 
-      var textIteratee = function textIteratee(substr, index, indexInPlainText) {
-        // check whether the caret element has to be inserted inside the current plain substring
-        if (isNumber(caretPositionInMarkup) && caretPositionInMarkup >= index && caretPositionInMarkup <= index + substr.length) {
-          // if yes, split substr at the caret position and insert the caret component
-          var splitIndex = caretPositionInMarkup - index;
-          components.push(_this2.renderSubstring(substr.substring(0, splitIndex), substringComponentKey)); // add all following substrings and mention components as children of the caret component
+  if (components !== resultComponents) {
+    // if a caret component is to be rendered, add all components that followed as its children
+    resultComponents.push(renderHighlighterCaret(components));
+  }
 
-          components = [_this2.renderSubstring(substr.substring(splitIndex), substringComponentKey)];
-        } else {
-          // otherwise just push the plain text substring
-          components.push(_this2.renderSubstring(substr, substringComponentKey));
-        }
+  return /*#__PURE__*/React__default.createElement("div", _extends({}, style, {
+    ref: containerRef
+  }), resultComponents);
+}
 
-        substringComponentKey++;
-      };
-
-      var mentionIteratee = function mentionIteratee(markup, index, indexInPlainText, id, display, mentionChildIndex, lastMentionEndIndex) {
-        // generate a component key based on the id
-        var key = _generateComponentKey(componentKeys, id);
-
-        components.push(_this2.getMentionComponentForMatch(id, display, mentionChildIndex, key));
-      };
-
-      iterateMentionsMarkup(value, config, mentionIteratee, textIteratee); // append a span containing a space, to ensure the last text line has the correct height
-
-      components.push(' ');
-
-      if (components !== resultComponents) {
-        // if a caret component is to be rendered, add all components that followed as its children
-        resultComponents.push(this.renderHighlighterCaret(components));
-      }
-
-      return /*#__PURE__*/React__default.createElement("div", _extends({}, style, {
-        ref: containerRef
-      }), resultComponents);
-    }
-  }, {
-    key: "renderSubstring",
-    value: function renderSubstring(string, key) {
-      // set substring span to hidden, so that Emojis are not shown double in Mobile Safari
-      return /*#__PURE__*/React__default.createElement("span", _extends({}, this.props.style('substring'), {
-        key: key
-      }), string);
-    } // Returns a clone of the Mention child applicable for the specified type to be rendered inside the highlighter
-
-  }, {
-    key: "getMentionComponentForMatch",
-    value: function getMentionComponentForMatch(id, display, mentionChildIndex, key) {
-      var props = {
-        id: id,
-        display: display,
-        key: key
-      };
-      var child = React.Children.toArray(this.props.children)[mentionChildIndex];
-      return /*#__PURE__*/React__default.cloneElement(child, props);
-    } // Renders an component to be inserted in the highlighter at the current caret position
-
-  }, {
-    key: "renderHighlighterCaret",
-    value: function renderHighlighterCaret(children) {
-      return /*#__PURE__*/React__default.createElement("span", _extends({}, this.props.style('caret'), {
-        ref: this.setCaretElement,
-        key: "caret"
-      }), children);
-    }
-  }]);
-
-  return Highlighter;
-}(React.Component);
-
-_defineProperty(Highlighter, "propTypes", {
+Highlighter.propTypes = {
   selectionStart: PropTypes.number,
   selectionEnd: PropTypes.number,
   value: PropTypes.string.isRequired,
@@ -862,12 +826,7 @@ _defineProperty(Highlighter, "propTypes", {
     current: typeof Element === 'undefined' ? PropTypes.any : PropTypes.instanceOf(Element)
   })]),
   children: PropTypes.oneOfType([PropTypes.element, PropTypes.arrayOf(PropTypes.element)]).isRequired
-});
-
-_defineProperty(Highlighter, "defaultProps", {
-  value: ''
-});
-
+};
 var styled = createDefaultStyle({
   position: 'relative',
   boxSizing: 'border-box',
@@ -989,162 +948,144 @@ function LoadingIndicator(_ref) {
 
 var defaultstyle = {};
 
-function _createSuper$1(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$1(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function SuggestionsOverlay(_ref) {
+  var id = _ref.id,
+      _ref$suggestions = _ref.suggestions,
+      suggestions = _ref$suggestions === void 0 ? {} : _ref$suggestions,
+      a11ySuggestionsListLabel = _ref.a11ySuggestionsListLabel,
+      focusIndex = _ref.focusIndex,
+      position = _ref.position,
+      left = _ref.left,
+      right = _ref.right,
+      top = _ref.top,
+      scrollFocusedIntoView = _ref.scrollFocusedIntoView,
+      isLoading = _ref.isLoading,
+      isOpened = _ref.isOpened,
+      _ref$onSelect = _ref.onSelect,
+      onSelect = _ref$onSelect === void 0 ? function () {
+    return null;
+  } : _ref$onSelect,
+      ignoreAccents = _ref.ignoreAccents,
+      containerRef = _ref.containerRef,
+      children = _ref.children,
+      style = _ref.style,
+      customSuggestionsContainer = _ref.customSuggestionsContainer,
+      onMouseDown = _ref.onMouseDown,
+      onMouseEnter = _ref.onMouseEnter;
 
-function _isNativeReflectConstruct$1() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+  var _useState = React.useState(),
+      _useState2 = _slicedToArray(_useState, 2),
+      ulElement = _useState2[0],
+      setUlElement = _useState2[1];
 
-var SuggestionsOverlay = /*#__PURE__*/function (_Component) {
-  _inherits(SuggestionsOverlay, _Component);
-
-  var _super = _createSuper$1(SuggestionsOverlay);
-
-  function SuggestionsOverlay() {
-    var _this;
-
-    _classCallCheck(this, SuggestionsOverlay);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+  React.useEffect(function () {
+    if (!ulElement || ulElement.offsetHeight >= ulElement.scrollHeight || !scrollFocusedIntoView) {
+      return;
     }
 
-    _this = _super.call.apply(_super, [this].concat(args));
+    var scrollTop = ulElement.scrollTop;
 
-    _defineProperty(_assertThisInitialized(_this), "handleMouseEnter", function (index, ev) {
-      if (_this.props.onMouseEnter) {
-        _this.props.onMouseEnter(index);
+    var _ulElement$children$f = ulElement.children[focusIndex].getBoundingClientRect(),
+        top = _ulElement$children$f.top,
+        bottom = _ulElement$children$f.bottom;
+
+    var _ulElement$getBoundin = ulElement.getBoundingClientRect(),
+        topContainer = _ulElement$getBoundin.top;
+
+    top = top - topContainer + scrollTop;
+    bottom = bottom - topContainer + scrollTop;
+
+    if (top < scrollTop) {
+      ulElement.scrollTop = top;
+    } else if (bottom > ulElement.offsetHeight) {
+      ulElement.scrollTop = bottom - ulElement.offsetHeight;
+    }
+  }, []);
+
+  var renderSuggestions = function renderSuggestions() {
+    var suggestionsToRender = Object.values(suggestions).reduce(function (accResults, _ref2) {
+      var results = _ref2.results,
+          queryInfo = _ref2.queryInfo;
+      return [].concat(_toConsumableArray(accResults), _toConsumableArray(results.map(function (result, index) {
+        return renderSuggestion(result, queryInfo, accResults.length + index);
+      })));
+    }, []);
+    if (customSuggestionsContainer) return customSuggestionsContainer(suggestionsToRender);else return suggestionsToRender;
+  };
+
+  var renderSuggestion = function renderSuggestion(result, queryInfo, index) {
+    var isFocused = index === focusIndex;
+    var childIndex = queryInfo.childIndex,
+        query = queryInfo.query;
+    var renderSuggestion = React.Children.toArray(children)[childIndex].props.renderSuggestion;
+    return /*#__PURE__*/React__default.createElement(Suggestion$1, {
+      style: style('item'),
+      key: "".concat(childIndex, "-").concat(getID(result)),
+      id: getSuggestionHtmlId(id, index),
+      query: query,
+      index: index,
+      ignoreAccents: ignoreAccents,
+      renderSuggestion: renderSuggestion,
+      suggestion: result,
+      focused: isFocused,
+      onClick: function onClick() {
+        return select(result, queryInfo);
+      },
+      onMouseEnter: function onMouseEnter() {
+        return handleMouseEnter(index);
       }
     });
+  };
 
-    _defineProperty(_assertThisInitialized(_this), "select", function (suggestion, queryInfo) {
-      _this.props.onSelect(suggestion, queryInfo);
+  var renderLoadingIndicator = function renderLoadingIndicator() {
+    if (!isLoading) {
+      return;
+    }
+
+    return /*#__PURE__*/React__default.createElement(LoadingIndicator, {
+      style: style('loadingIndicator')
     });
+  };
 
-    _defineProperty(_assertThisInitialized(_this), "setUlElement", function (el) {
-      _this.ulElement = el;
-    });
+  var handleMouseEnter = function handleMouseEnter(index, ev) {
+    if (onMouseEnter) {
+      onMouseEnter(index);
+    }
+  };
 
-    return _this;
+  var select = function select(suggestion, queryInfo) {
+    onSelect(suggestion, queryInfo);
+  };
+
+  var getID = function getID(suggestion) {
+    if (typeof suggestion === 'string') {
+      return suggestion;
+    }
+
+    return suggestion.id;
+  };
+
+  if (!isOpened) {
+    return null;
   }
 
-  _createClass(SuggestionsOverlay, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      if (!this.ulElement || this.ulElement.offsetHeight >= this.ulElement.scrollHeight || !this.props.scrollFocusedIntoView) {
-        return;
-      }
+  return /*#__PURE__*/React__default.createElement("div", _extends({}, useStyles.inline({
+    position: position || 'absolute',
+    left: left,
+    right: right,
+    top: top
+  }, style), {
+    onMouseDown: onMouseDown,
+    ref: containerRef
+  }), /*#__PURE__*/React__default.createElement("ul", _extends({
+    ref: setUlElement,
+    id: id,
+    role: "listbox",
+    "aria-label": a11ySuggestionsListLabel
+  }, style('list')), renderSuggestions()), renderLoadingIndicator());
+}
 
-      var scrollTop = this.ulElement.scrollTop;
-
-      var _this$ulElement$child = this.ulElement.children[this.props.focusIndex].getBoundingClientRect(),
-          top = _this$ulElement$child.top,
-          bottom = _this$ulElement$child.bottom;
-
-      var _this$ulElement$getBo = this.ulElement.getBoundingClientRect(),
-          topContainer = _this$ulElement$getBo.top;
-
-      top = top - topContainer + scrollTop;
-      bottom = bottom - topContainer + scrollTop;
-
-      if (top < scrollTop) {
-        this.ulElement.scrollTop = top;
-      } else if (bottom > this.ulElement.offsetHeight) {
-        this.ulElement.scrollTop = bottom - this.ulElement.offsetHeight;
-      }
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props = this.props,
-          id = _this$props.id,
-          a11ySuggestionsListLabel = _this$props.a11ySuggestionsListLabel,
-          isOpened = _this$props.isOpened,
-          style = _this$props.style,
-          onMouseDown = _this$props.onMouseDown,
-          containerRef = _this$props.containerRef,
-          position = _this$props.position,
-          left = _this$props.left,
-          right = _this$props.right,
-          top = _this$props.top; // do not show suggestions until there is some data
-
-      if (!isOpened) {
-        return null;
-      }
-
-      return /*#__PURE__*/React__default.createElement("div", _extends({}, useStyles.inline({
-        position: position || 'absolute',
-        left: left,
-        right: right,
-        top: top
-      }, style), {
-        onMouseDown: onMouseDown,
-        ref: containerRef
-      }), /*#__PURE__*/React__default.createElement("ul", _extends({
-        ref: this.setUlElement,
-        id: id,
-        role: "listbox",
-        "aria-label": a11ySuggestionsListLabel
-      }, style('list')), this.renderSuggestions()), this.renderLoadingIndicator());
-    }
-  }, {
-    key: "renderSuggestions",
-    value: function renderSuggestions() {
-      var _this2 = this;
-
-      var customSuggestionsContainer = this.props.customSuggestionsContainer;
-      var suggestions = Object.values(this.props.suggestions).reduce(function (accResults, _ref) {
-        var results = _ref.results,
-            queryInfo = _ref.queryInfo;
-        return [].concat(_toConsumableArray(accResults), _toConsumableArray(results.map(function (result, index) {
-          return _this2.renderSuggestion(result, queryInfo, accResults.length + index);
-        })));
-      }, []);
-      if (customSuggestionsContainer) return customSuggestionsContainer(suggestions);else return suggestions;
-    }
-  }, {
-    key: "renderSuggestion",
-    value: function renderSuggestion(result, queryInfo, index) {
-      var _this3 = this;
-
-      var isFocused = index === this.props.focusIndex;
-      var childIndex = queryInfo.childIndex,
-          query = queryInfo.query;
-      var renderSuggestion = React.Children.toArray(this.props.children)[childIndex].props.renderSuggestion;
-      var ignoreAccents = this.props.ignoreAccents;
-      return /*#__PURE__*/React__default.createElement(Suggestion$1, {
-        style: this.props.style('item'),
-        key: "".concat(childIndex, "-").concat(getID(result)),
-        id: getSuggestionHtmlId(this.props.id, index),
-        query: query,
-        index: index,
-        ignoreAccents: ignoreAccents,
-        renderSuggestion: renderSuggestion,
-        suggestion: result,
-        focused: isFocused,
-        onClick: function onClick() {
-          return _this3.select(result, queryInfo);
-        },
-        onMouseEnter: function onMouseEnter() {
-          return _this3.handleMouseEnter(index);
-        }
-      });
-    }
-  }, {
-    key: "renderLoadingIndicator",
-    value: function renderLoadingIndicator() {
-      if (!this.props.isLoading) {
-        return;
-      }
-
-      return /*#__PURE__*/React__default.createElement(LoadingIndicator, {
-        style: this.props.style('loadingIndicator')
-      });
-    }
-  }]);
-
-  return SuggestionsOverlay;
-}(React.Component);
-
-_defineProperty(SuggestionsOverlay, "propTypes", {
+SuggestionsOverlay.propTypes = {
   id: PropTypes.string.isRequired,
   suggestions: PropTypes.object.isRequired,
   a11ySuggestionsListLabel: PropTypes.string,
@@ -1158,27 +1099,11 @@ _defineProperty(SuggestionsOverlay, "propTypes", {
   isOpened: PropTypes.bool.isRequired,
   onSelect: PropTypes.func,
   ignoreAccents: PropTypes.bool,
+  customSuggestionsContainer: PropTypes.func,
   containerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
     current: typeof Element === 'undefined' ? PropTypes.any : PropTypes.instanceOf(Element)
-  })]),
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.arrayOf(PropTypes.element)]).isRequired
-});
-
-_defineProperty(SuggestionsOverlay, "defaultProps", {
-  suggestions: {},
-  onSelect: function onSelect() {
-    return null;
-  }
-});
-
-var getID = function getID(suggestion) {
-  if (typeof suggestion === 'string') {
-    return suggestion;
-  }
-
-  return suggestion.id;
+  })])
 };
-
 var styled$2 = createDefaultStyle({
   zIndex: 1,
   backgroundColor: 'white',
@@ -1196,9 +1121,9 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
-function _createSuper$2(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$2(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _isNativeReflectConstruct$2() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 var makeTriggerRegex = function makeTriggerRegex(trigger) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -1270,7 +1195,7 @@ var propTypes = {
 var MentionsInput = /*#__PURE__*/function (_React$Component) {
   _inherits(MentionsInput, _React$Component);
 
-  var _super = _createSuper$2(MentionsInput);
+  var _super = _createSuper(MentionsInput);
 
   function MentionsInput(_props) {
     var _this;
@@ -2175,7 +2100,6 @@ var Mention = function Mention(_ref) {
   var ref = React__default.useRef(null);
 
   var handleClick = function handleClick(event) {
-    event.stopPropagation();
     if (onClick) onClick(id, display);
   };
 
