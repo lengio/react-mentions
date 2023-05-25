@@ -11,7 +11,7 @@ const Mention = ({ display, style, className, classNames, id, onClick }) => {
   const ref = React.useRef(null)
 
   const handleClick = (event) => {
-    event.stopPropagation()
+    //event.stopPropagation()
     if (onClick) onClick(id, display)
   }
 
