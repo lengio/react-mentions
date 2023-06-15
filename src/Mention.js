@@ -6,21 +6,57 @@ const defaultStyle = {
   fontWeight: 'inherit',
 }
 
-const Mention = ({ display, style, className, classNames, id, onClick }) => {
+const Mention = ({
+  display,
+  style,
+  className,
+  classNames,
+  id,
+  onClick,
+  onRightClick,
+  onHover,
+}) => {
   const styles = useStyles(defaultStyle, { style, className, classNames })
   const ref = React.useRef(null)
 
-  const handleClick = (event) => {
+  const eventHandler = (event, funct) => {
     event.stopPropagation()
-    if (onClick) onClick(id, display)
+
+    if (funct) funct(id, display)
+  }
+
+  const handleClick = (event) => {
+    eventHandler(event, onClick)
+  }
+
+  const handleRightClick = (event) => {
+    eventHandler(event, onRightClick)
+  }
+
+  const handleHover = (event) => {
+    eventHandler(event, onHover)
   }
 
   React.useEffect(() => {
     ref.current.addEventListener('click', handleClick)
+    ref.current.addEventListener('contextmenu', handleRightClick)
+    ref.current.addEventListener('mouseenter', handleHover)
+
+    return () => {
+      ref.current.removeEventListener('click', handleClick)
+      ref.current.removeEventListener('contextmenu', handleRightClick)
+      ref.current.removeEventListener('mouseenter', handleHover)
+    }
   }, [])
 
   return (
-    <strong ref={ref} onClick={handleClick} {...styles}>
+    <strong
+      ref={ref}
+      onClick={handleClick}
+      onContextMenu={handleRightClick}
+      onMouseEnter={handleHover}
+      {...styles}
+    >
       {display}
     </strong>
   )
@@ -66,7 +102,9 @@ Mention.defaultProps = {
   },
   onAdd: () => null,
   onClick: () => null,
+  onHover: () => null,
   onRemove: () => null,
+  onRightClick: () => null,
   renderSuggestion: null,
   isLoading: false,
   appendSpaceOnAdd: false,
