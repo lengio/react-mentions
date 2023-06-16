@@ -14,7 +14,8 @@ const Mention = ({
   id,
   onClick,
   onRightClick,
-  onHover,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const styles = useStyles(defaultStyle, { style, className, classNames })
   const ref = React.useRef(null)
@@ -33,8 +34,12 @@ const Mention = ({
     eventHandler(event, onRightClick)
   }
 
-  const handleHover = (event) => {
-    eventHandler(event, onHover)
+  const handleMouseEnter = (event) => {
+    eventHandler(event, onMouseEnter)
+  }
+
+  const handleMouseLeave = (event) => {
+    eventHandler(event, onMouseLeave)
   }
 
   React.useEffect(() => {
@@ -50,7 +55,8 @@ const Mention = ({
       ref={ref}
       onClick={handleClick}
       onContextMenu={handleRightClick}
-      onMouseEnter={handleHover}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       {...styles}
     >
       {display}
@@ -98,7 +104,8 @@ Mention.defaultProps = {
   },
   onAdd: () => null,
   onClick: () => null,
-  onHover: () => null,
+  onMouseEnter: () => null,
+  onMouseLeave: () => null,
   onRemove: () => null,
   onRightClick: () => null,
   renderSuggestion: null,

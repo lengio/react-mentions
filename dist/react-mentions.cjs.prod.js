@@ -1190,7 +1190,7 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
 }), MentionsInput$1 = styled$3(MentionsInput), defaultStyle = {
   fontWeight: "inherit"
 }, Mention = function(_ref) {
-  var display = _ref.display, style = _ref.style, className = _ref.className, classNames = _ref.classNames, id = _ref.id, onClick = _ref.onClick, onRightClick = _ref.onRightClick, onHover = _ref.onHover, styles = useStyles__default(defaultStyle, {
+  var display = _ref.display, style = _ref.style, className = _ref.className, classNames = _ref.classNames, id = _ref.id, onClick = _ref.onClick, onRightClick = _ref.onRightClick, onMouseEnter = _ref.onMouseEnter, onMouseLeave = _ref.onMouseLeave, styles = useStyles__default(defaultStyle, {
     style: style,
     className: className,
     classNames: classNames
@@ -1210,7 +1210,10 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
       event.preventDefault(), eventHandler(0, onRightClick);
     },
     onMouseEnter: function(event) {
-      eventHandler(0, onHover);
+      eventHandler(0, onMouseEnter);
+    },
+    onMouseLeave: function(event) {
+      eventHandler(0, onMouseLeave);
     }
   }, styles), display);
 };
@@ -1237,7 +1240,10 @@ Mention.propTypes = {
   onClick: function() {
     return null;
   },
-  onHover: function() {
+  onMouseEnter: function() {
+    return null;
+  },
+  onMouseLeave: function() {
     return null;
   },
   onRemove: function() {

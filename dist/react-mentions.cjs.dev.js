@@ -2093,7 +2093,8 @@ var Mention = function Mention(_ref) {
       id = _ref.id,
       onClick = _ref.onClick,
       onRightClick = _ref.onRightClick,
-      onHover = _ref.onHover;
+      onMouseEnter = _ref.onMouseEnter,
+      onMouseLeave = _ref.onMouseLeave;
   var styles = useStyles__default(defaultStyle, {
     style: style,
     className: className,
@@ -2115,8 +2116,12 @@ var Mention = function Mention(_ref) {
     eventHandler(event, onRightClick);
   };
 
-  var handleHover = function handleHover(event) {
-    eventHandler(event, onHover);
+  var handleMouseEnter = function handleMouseEnter(event) {
+    eventHandler(event, onMouseEnter);
+  };
+
+  var handleMouseLeave = function handleMouseLeave(event) {
+    eventHandler(event, onMouseLeave);
   };
 
   React__default.useEffect(function () {
@@ -2129,7 +2134,8 @@ var Mention = function Mention(_ref) {
     ref: ref,
     onClick: handleClick,
     onContextMenu: handleRightClick,
-    onMouseEnter: handleHover
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave
   }, styles), display);
 };
 
@@ -2171,7 +2177,10 @@ Mention.defaultProps = {
   onClick: function onClick() {
     return null;
   },
-  onHover: function onHover() {
+  onMouseEnter: function onMouseEnter() {
+    return null;
+  },
+  onMouseLeave: function onMouseLeave() {
     return null;
   },
   onRemove: function onRemove() {
