@@ -25,6 +25,7 @@ const Mention = ({
 
   const handleClick = (event) => {
     event.stopPropagation()
+    console.log('click')
     eventHandler(event, onClick)
   }
 
