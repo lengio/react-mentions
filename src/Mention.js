@@ -25,30 +25,23 @@ const Mention = ({
 
   const handleClick = (event) => {
     event.stopPropagation()
-    console.log('click')
     eventHandler(event, onClick)
   }
 
   const handleRightClick = (event) => {
     event.preventDefault()
-    console.log('right click')
     eventHandler(event, onRightClick)
   }
 
   const handleHover = (event) => {
-    console.log('hover')
     eventHandler(event, onHover)
   }
 
   React.useEffect(() => {
     ref.current.addEventListener('click', handleClick)
-    ref.current.addEventListener('contextmenu', handleRightClick)
-    ref.current.addEventListener('mouseenter', handleHover)
 
     return () => {
       ref.current.removeEventListener('click', handleClick)
-      ref.current.removeEventListener('contextmenu', handleRightClick)
-      ref.current.removeEventListener('mouseenter', handleHover)
     }
   }, [])
 

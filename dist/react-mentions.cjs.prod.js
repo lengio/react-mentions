@@ -1197,23 +1197,21 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
   }), ref = React__default.useRef(null), eventHandler = function(event, funct) {
     funct && funct(id, display);
   }, handleClick = function(event) {
-    event.stopPropagation(), console.log("click"), eventHandler(0, onClick);
-  }, handleRightClick = function(event) {
-    event.preventDefault(), console.log("right click"), eventHandler(0, onRightClick);
-  }, handleHover = function(event) {
-    console.log("hover"), eventHandler(0, onHover);
+    event.stopPropagation(), eventHandler(0, onClick);
   };
   return React__default.useEffect(function() {
-    return ref.current.addEventListener("click", handleClick), ref.current.addEventListener("contextmenu", handleRightClick), 
-    ref.current.addEventListener("mouseenter", handleHover), function() {
-      ref.current.removeEventListener("click", handleClick), ref.current.removeEventListener("contextmenu", handleRightClick), 
-      ref.current.removeEventListener("mouseenter", handleHover);
+    return ref.current.addEventListener("click", handleClick), function() {
+      ref.current.removeEventListener("click", handleClick);
     };
   }, []), React__default.createElement("strong", _extends({
     ref: ref,
     onClick: handleClick,
-    onContextMenu: handleRightClick,
-    onMouseEnter: handleHover
+    onContextMenu: function(event) {
+      event.preventDefault(), eventHandler(0, onRightClick);
+    },
+    onMouseEnter: function(event) {
+      eventHandler(0, onHover);
+    }
   }, styles), display);
 };
 

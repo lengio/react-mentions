@@ -2099,29 +2099,22 @@ var Mention = function Mention(_ref) {
 
   var handleClick = function handleClick(event) {
     event.stopPropagation();
-    console.log('click');
     eventHandler(event, onClick);
   };
 
   var handleRightClick = function handleRightClick(event) {
     event.preventDefault();
-    console.log('right click');
     eventHandler(event, onRightClick);
   };
 
   var handleHover = function handleHover(event) {
-    console.log('hover');
     eventHandler(event, onHover);
   };
 
   React.useEffect(function () {
     ref.current.addEventListener('click', handleClick);
-    ref.current.addEventListener('contextmenu', handleRightClick);
-    ref.current.addEventListener('mouseenter', handleHover);
     return function () {
       ref.current.removeEventListener('click', handleClick);
-      ref.current.removeEventListener('contextmenu', handleRightClick);
-      ref.current.removeEventListener('mouseenter', handleHover);
     };
   }, []);
   return /*#__PURE__*/React.createElement("strong", _extends({
