@@ -20,21 +20,22 @@ const Mention = ({
   const ref = React.useRef(null)
 
   const eventHandler = (event, funct) => {
-    event.stopPropagation()
-
     if (funct) funct(id, display)
   }
 
   const handleClick = (event) => {
+    event.stopPropagation()
     eventHandler(event, onClick)
   }
 
   const handleRightClick = (event) => {
     event.preventDefault()
+    console.log('right click')
     eventHandler(event, onRightClick)
   }
 
   const handleHover = (event) => {
+    console.log('hover')
     eventHandler(event, onHover)
   }
 
