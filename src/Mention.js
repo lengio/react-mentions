@@ -30,6 +30,7 @@ const Mention = ({
   }
 
   const handleRightClick = (event) => {
+    event.preventDefault()
     eventHandler(event, onRightClick)
   }
 
