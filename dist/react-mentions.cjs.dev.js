@@ -2126,8 +2126,10 @@ var Mention = function Mention(_ref) {
 
   React__default.useEffect(function () {
     ref.current.addEventListener('click', handleClick);
+    ref.current.addEventListener('mouseenter', handleMouseEnter);
     return function () {
       ref.current.removeEventListener('click', handleClick);
+      ref.current.removeEventListener('mouseenter', handleMouseEnter);
     };
   }, []);
   return /*#__PURE__*/React__default.createElement("strong", _extends({
