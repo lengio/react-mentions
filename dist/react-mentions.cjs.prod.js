@@ -1198,13 +1198,10 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
     funct && funct(id, display);
   }, handleClick = function(event) {
     event.stopPropagation(), eventHandler(0, onClick);
-  }, handleMouseEnter = function(event) {
-    eventHandler(0, onMouseEnter);
   };
   return React__default.useEffect(function() {
-    return ref.current.addEventListener("click", handleClick), ref.current.addEventListener("mouseenter", handleMouseEnter), 
-    function() {
-      ref.current.removeEventListener("click", handleClick), ref.current.removeEventListener("mouseenter", handleMouseEnter);
+    return ref.current.addEventListener("click", handleClick), function() {
+      ref.current.removeEventListener("click", handleClick);
     };
   }, []), React__default.createElement("strong", _extends({
     ref: ref,
@@ -1212,7 +1209,9 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
     onContextMenu: function(event) {
       event.preventDefault(), eventHandler(0, onRightClick);
     },
-    onMouseEnter: handleMouseEnter,
+    onMouseEnter: function(event) {
+      eventHandler(0, onMouseEnter);
+    },
     onMouseLeave: function(event) {
       eventHandler(0, onMouseLeave);
     }

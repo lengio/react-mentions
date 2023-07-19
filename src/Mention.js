@@ -44,11 +44,9 @@ const Mention = ({
 
   React.useEffect(() => {
     ref.current.addEventListener('click', handleClick)
-    ref.current.addEventListener('mouseenter', handleMouseEnter)
 
     return () => {
       ref.current.removeEventListener('click', handleClick)
-      ref.current.removeEventListener('mouseenter', handleMouseEnter)
     }
   }, [])
 
