@@ -1200,8 +1200,9 @@ var getComputedStyleLengthProp = function(forElement, propertyName) {
     event.stopPropagation(), eventHandler(0, onClick);
   };
   return React__default.useEffect(function() {
-    return ref.current.addEventListener("click", handleClick), function() {
-      ref.current.removeEventListener("click", handleClick);
+    return ref && ref.current && ref.current.addEventListener("click", handleClick), 
+    function() {
+      ref && ref.current && ref.current.removeEventListener("click", handleClick);
     };
   }, []), React__default.createElement("strong", _extends({
     ref: ref,

@@ -2117,9 +2117,9 @@ var Mention = function Mention(_ref) {
   };
 
   React.useEffect(function () {
-    ref.current.addEventListener('click', handleClick);
+    if (ref && ref.current) ref.current.addEventListener('click', handleClick);
     return function () {
-      ref.current.removeEventListener('click', handleClick);
+      if (ref && ref.current) ref.current.removeEventListener('click', handleClick);
     };
   }, []);
   return /*#__PURE__*/React.createElement("strong", _extends({
